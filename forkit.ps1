@@ -28,6 +28,10 @@ if ($latestVersion -gt $currentVersion) {
             Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
             Write-Host "CSV Template Downloaded and Saved to Desktop"
 }
+else {
+      echo "Script is up to date."
+}
+
 }
 Clear-Host
 
@@ -54,6 +58,8 @@ Write-Host "| 4) Delete Users                    |"
 Write-Host "| 5) Block User Access               |"
 Write-Host "| 6) Reset User Password             |"
 Write-Host "| 7) Apply GPO To User or OU         |"
+Write-Host "| 8) Settings                        |"
+Write-Host "| 9) Information                     |"
 Write-Host "--------------------------------------"      
 Write-Host "                                      "
 }
@@ -91,7 +97,13 @@ While($exit -ne "q") {
 
     # Output The Information
     echo "Your Full Name Is $firstName $lastName."
-
+    $numberOfSubOU = Read-Host -Prompt "How many Sub OU Do You Have"
+    $mainOU = Read-Host -Prompt "What OU Would You Like To Place The User In?"
+    $subOU = Read-Host -Prompt "What Is The Sub OU of the Main OU?"
+    $ADDSdomain = Read-Host -Prompt "What Is Your Domain"
+    $ReacallDomain = ""
+    echo "Would You Like To Save This Configuration For This Session?"
+    echo "You Can Also Save Other Data In The Settings Menu."
     # Storing Information 
     $OUpath =  "OU=Power Shell Users,OU=Kizio Technologies,DC=Kizio,DC=Tech"
 
@@ -112,6 +124,20 @@ While($exit -ne "q") {
 
 function Del-User {
 
+}
+
+function Information {
+      Write-Host "--------------------------------------------------------------------------"
+      Write-Host "| Forkit | Infromation                                           [-] [X] |"
+      Write-Host "--------------------------------------------------------------------------"
+      Write-Host "| What is Frokit?                                                        |"
+      Write-Host "| Forkit is a PS script for AD DS admin's to use to quickly make changes |"
+      Write-Host "| regardings users and OU units. Forkit has many features such as        |"
+      Write-Host "| the ability to import and create CSV files as well as quick user add   |"
+      Write-Host "| deleteion and blocking. Forkit also had a wizard to help setup your    |"
+      Write-Host "| AD DS Server in a flash by setting up basic GPO and OU Units as well   |"
+      Write-Host "| as users and permission groups.                                        |"
+      Write-Host "--------------------------------------------------------------------------"
 }
 
 Show-Menu
