@@ -12,16 +12,24 @@ if (-Not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
 
 # Auto Script Update
 $currentVersion = "1.0"
-$url = "http://mirror.internode.on.net/pub/test/10meg.test"
-$DesktopPath = [Environment]::GetFolderPath("Desktop")
-$output = "$DesktopPath\10meg.test"
-$start_time = Get-Date
+$url = "https://downloads.kizio.tech/version.txt"
+$output = "$env:tmp\version.txt"
 (New-Object System.Net.WebClient).DownloadFile($url, $output)
-Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
-echo "CSV Template Downloaded and Saved to Desktop"
-$latestVersion = ""
-
-cls
+$latestVersion = Get-Content -Path $env:tmp\version.txt
+if ($latestVersion -gt $currentVersion) {
+      Write-Host "New Script Avaliable. Do You Want To Download It?"
+      $confirmation = Read-Host "'y' for Yes, 'n' for No:"
+      if ($confirmation -eq 'y') {
+            $url = "https://raw.githubusercontent.com/DavidNgoDev/FORKIT/master/updater.ps1"
+            $output = "$PSScriptRoot\updater.ps1"
+            # Make a verifier script to replace active script and del old script
+            $start_time = Get-Date
+            (New-Object System.Net.WebClient).DownloadFile($url, $output)
+            Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+            Write-Host "CSV Template Downloaded and Saved to Desktop"
+}
+}
+Clear-Host
 
 function Show-Menu {
 Write-Host "    __________  ____  __ __ __________" -ForegroundColor Green 
@@ -29,25 +37,25 @@ Write-Host "   / ____/ __ \/ __ \/ //_//  _/_  __/" -ForegroundColor Green
 Write-Host "  / /_  / / / / /_/ / ,<   / /  / /   " -ForegroundColor Green 
 Write-Host " / __/ / /_/ / _, _/ /| |_/ /  / /    " -ForegroundColor Green 
 Write-Host "/_/    \____/_/ |_/_/ |_/___/ /_/     " -ForegroundColor Green
-echo "                                      "
-echo "--------------------------------------"
-echo "| Made By David Ngo      Version 1.0 |"
-echo "--------------------------------------"
-echo "                                      "                                      
-echo "   What Would You Like To Do Today?   "
-echo "                                      " 
-echo "--------------------------------------"
-echo "| Option Menu                [-] [X] |"
-echo "--------------------------------------"
-echo "| 1) Create AD DS CSV Template File  |"
-echo "| 2) Import CSV File For AD DS       |"
-echo "| 3) Add Users                       |"
-echo "| 4) Delete Users                    |"
-echo "| 5) Block User Access               |"
-echo "| 6) Reset User Password             |"
-echo "| 7) Apply GPO To User or OU         |"
-echo "--------------------------------------"      
-echo "                                      "
+Write-Host "                                      "
+Write-Host "--------------------------------------"
+Write-Host "| Made By David Ngo      Version 1.0 |"
+Write-Host "--------------------------------------"
+Write-Host "                                      "                                      
+Write-Host "   What Would You Like To Do Today?   "
+Write-Host "                                      " 
+Write-Host "--------------------------------------"
+Write-Host "| Option Menu                [-] [X] |"
+Write-Host "--------------------------------------"
+Write-Host "| 1) Create AD DS CSV Template File  |"
+Write-Host "| 2) Import CSV File For AD DS       |"
+Write-Host "| 3) Add Users                       |"
+Write-Host "| 4) Delete Users                    |"
+Write-Host "| 5) Block User Access               |"
+Write-Host "| 6) Reset User Password             |"
+Write-Host "| 7) Apply GPO To User or OU         |"
+Write-Host "--------------------------------------"      
+Write-Host "                                      "
 }
 
 function Import-CSV-File {
@@ -60,21 +68,57 @@ function Import-CSV-File {
         $jobTitle = $user.'Job Title'
         $officePhone = $user.'Office Phone'
         $emailAddress = $user.'Email Address'
-        $description = $user.Description
         $OUpath = $user.'Organisational Unit'
         $securePassword = ConvertTo-SecureString "$password" -AsPlainText -Force
         $lastNameUp = ($lastName.ToUpper())
         $Final = $firstName + $lastNameUp[0]
-        New-ADuser -Name "$firstName $lastName" -DisplayName "$firstName $lastName" -GivenName $firstName -Surname $lastName -UserPrincipalName "$Final" -Path $OUpath -AccountPassword $securePassword -ChangePasswordAtLogon $True -OfficePhone $officePhone -Description $Description -EmailAddress $emailAddress -Enabled $True
-        echo "$firstName $lastName was sucessfully added to $OUpath"
+        New-ADuser -Name "$firstName $lastName" -DisplayName "$firstName $lastName" -GivenName $firstName -Surname $lastName -UserPrincipalName "$Final" -Path $OUpath -AccountPassword $securePassword -ChangePasswordAtLogon $True -OfficePhone $officePhone -EmailAddress $emailAddress -Enabled $True
+        Write-Host "$firstName $lastName was sucessfully added to $OUpath"
     }
+}
+
+function Get-All-OU {
+      
+}
+
+function Add-Users {
+$exit = ""
+While($exit -ne "q") {
+    # Store Users Information as Varibles
+    $firstName = Read-Host -Prompt "Please Enter Your First Name"
+    $lastName = Read-Host -Prompt "Now Please Enter Your Last Name"
+    $password = Read-Host -Prompt "Finally, Enter Your Password"
+
+    # Output The Information
+    echo "Your Full Name Is $firstName $lastName."
+
+    # Storing Information 
+    $OUpath =  "OU=Power Shell Users,OU=Kizio Technologies,DC=Kizio,DC=Tech"
+
+    # Secure Password String
+    $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+
+    $lastNameUp = ($lastName.ToUpper())
+    $Final = $firstName + $lastNameUp[0]
+
+    # Create The User Account
+    New-ADUser -Name "$firstName $lastName" -GivenName $firstName -Surname $lastName -UserPrincipalName "$Final" -Path $OUpath -AccountPassword $securePassword -ChangePasswordAtLogon $True -Enabled $True
+
+    #Output
+    echo "User Was Created Sucessfully!"
+    $exit = Read-Host -Prompt "Type 'q' To Quit! Enter To Continue Using The Tool"
+}
+}
+
+function Del-User {
+
 }
 
 Show-Menu
 do
 {
      $input = Read-Host "Please make a selection or 'q' to quit"
-     echo "                                      "
+     Write-Host "                                      "
      switch ($input)
      {
            '1' {
@@ -84,15 +128,15 @@ do
                  $start_time = Get-Date
                  (New-Object System.Net.WebClient).DownloadFile($url, $output)
                  Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
-                 echo "CSV Template Downloaded and Saved to Desktop"
+                 Write-Host "CSV Template Downloaded and Saved to Desktop"
                  pause          
-                 cls
+                 Clear-Host
                  Show-Menu
            } '2' {
-                 echo "--------------------------------------"
-                 echo "| User Input Needed              [x] |"
-                 echo "--------------------------------------"
-                 echo "                                      "   
+                 Write-Host "--------------------------------------"
+                 Write-Host "| User Input Needed              [x] |"
+                 Write-Host "--------------------------------------"
+                 Write-Host "                                      "   
                  Import-CSV-File
            } '3' {
 
