@@ -22,14 +22,18 @@ if ($latestVersion -gt $currentVersion) {
       if ($confirmation -eq 'y') {
             $url = "https://raw.githubusercontent.com/DavidNgoDev/FORKIT/master/updater.ps1"
             $output = "$PSScriptRoot\updater.ps1"
-            # Make a verifier script to replace active script and del old script
-            $start_time = Get-Date
             (New-Object System.Net.WebClient).DownloadFile($url, $output)
-            Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
-            Write-Host "CSV Template Downloaded and Saved to Desktop"
+            Write-Host "Updater Downloaded Suscessfully. Starting Update Process"
+            ./updater.ps1
+            exit
 }
 else {
       echo "Script is up to date."
+}
+
+# Check For Setting Configuration File
+if ([System.IO.File]::Exists($PSScriptRoot\.settings.ini)) {
+      $curre
 }
 
 }
@@ -101,11 +105,11 @@ While($exit -ne "q") {
     $mainOU = Read-Host -Prompt "What OU Would You Like To Place The User In?"
     $subOU = Read-Host -Prompt "What Is The Sub OU of the Main OU?"
     $ADDSdomain = Read-Host -Prompt "What Is Your Domain"
-    $ReacallDomain = ""
+    $ReacallDomain = Get-Content -Path $PSScriptRoot:tmp\.settings.ini
     echo "Would You Like To Save This Configuration For This Session?"
     echo "You Can Also Save Other Data In The Settings Menu."
     # Storing Information 
-    $OUpath =  "OU=Power Shell Users,OU=Kizio Technologies,DC=Kizio,DC=Tech"
+    $OUpath = "OU=Power Shell Users,OU=Kizio Technologies,DC=Kizio,DC=Tech"
 
     # Secure Password String
     $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
@@ -124,6 +128,12 @@ While($exit -ne "q") {
 
 function Del-User {
 
+}
+
+function Settings {
+      Write-Host "--------------------------------------------------------------------------"
+      Write-Host "| Forkit | Settings                                              [-] [X] |"
+      Write-Host "--------------------------------------------------------------------------"
 }
 
 function Information {
@@ -167,8 +177,20 @@ do
            } '3' {
 
                 'You chose option #3'
+           } '4' {
+
+           } '5' {
+
+           } '6' {
+                 
+           } '7' {
+
+           } '8' {
+
+           } '9' {
+                 Information
            } 'q' {
-                return
+                  return
            }
      }
      pause
